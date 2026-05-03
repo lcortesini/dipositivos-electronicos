@@ -1,2 +1,7 @@
 *.raw
 *.log
+*.net
+
+*.aux
+*.out
+*.toc
