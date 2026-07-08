@@ -32,7 +32,7 @@
 \fancyhf{}
 \fancyhead[L]{\small Universidad Tecnológica Nacional}
 \fancyhead[C]{\small Dispositivos Electrónicos I}
-\fancyhead[R]{\small TP N$^\circ$ 2}
+\fancyhead[R]{\small TP N$^\circ$ 3}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
@@ -131,20 +131,20 @@ La simulación DC op point confirma que el transistor BC547C se encuentra en zon
     \includegraphics[width=1\textwidth]{2Ib(Vbe)-(temperatura).png}
     \caption{}
 \end{figure}
+\subsection{Conclusiones}
 
-Conclusiones : 
-\\
-Las curvas de la simulación muestran que Ib crece de forma aproximadamente lineal respecto de Vbb una vez que supera la tension umbral de la juntura base-emisor (0,7V).
-\\
-\\
-En el barrido de temperatura se observa el desplazamineto de la curva segun la tempratura aplicada a la simulación: Para una misma Vbb la corriente de base es mayor, ya que la barrera de potencial de la junción disminuye con la temperatura. Esto implica que en entornos térmicos variables el punto de operación del transistor se desplaza, lo que debe considerarse en el diseño del circuito de polarización.
+El barrido de la tensión de base (\(V_{BB}\)) permitió observar el comportamiento característico de la unión base-emisor. Para tensiones inferiores a aproximadamente \(0.7\,\mathrm{V}\), la corriente de base (\(I_B\)) es prácticamente nula debido a que la unión no se encuentra polarizada en directa. A partir de dicho umbral, \(I_B\) aumenta rápidamente con pequeños incrementos de \(V_{BB}\), siguiendo una respuesta exponencial similar a la de un diodo de silicio, ya que la unión base-emisor presenta el mismo comportamiento eléctrico.
+
+En el barrido de temperatura (\(0\,^{\circ}\mathrm{C}\), \(25\,^{\circ}\mathrm{C}\) y \(50\,^{\circ}\mathrm{C}\)) se observa un desplazamiento de la curva \(I_B\)-\(V_{BB}\). A medida que aumenta la temperatura, la tensión necesaria para polarizar la unión base-emisor disminuye, por lo que para un mismo valor de \(V_{BB}\) la corriente de base es mayor. Esto se debe a la reducción de la barrera de potencial de la unión PN con la temperatura.
+
+En consecuencia, el incremento de la temperatura modifica el punto de operación del transistor, pudiendo provocar variaciones en las corrientes y tensiones de polarización. Este efecto debe considerarse durante el diseño de circuitos de polarización para garantizar un funcionamiento estable frente a cambios térmicos.
 
 
 \subsection{Implementacion en el laboratorio}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{ciruictoact2.jpeg}
+    \includegraphics[width=0.5\textwidth]{ciruictoact2.jpeg}
     \caption{}
 \end{figure}
 
@@ -163,13 +163,36 @@ En el barrido de temperatura se observa el desplazamineto de la curva segun la t
 \end{tabular}
 \label{tab:actividad2}
 \end{table}
+\\
 
 \subsection{Análisis}
 
-Para Vbb = 467mV, la Vbe es insuficiente para polarizar la juntura en directa y el transistor permanece en la zona de corte. \\
-A partir de Vbb = 1,03 V, en transistor entra en la zona activa y laa corriente Ic crece proporcionalmente a Ib. \\
-Cuando Vbb supera los 2V la Ic se estabiliza alrededor de los 16,8 mA independientemente del aumento de Ib, lo que indica que se alcanzó la zona de saturacion, y por ello, la potencia disipada por el BJT disminuye.
-\\
+Para \(V_{BB}=467\,\text{mV}\), la tensión \(V_{BE}\) es insuficiente para polarizar la unión base-emisor en directa, por lo que el transistor permanece en la región de corte.
+
+Al aumentar \(V_{BB}\) hasta aproximadamente \(1.03\,\text{V}\), el transistor entra en la región activa. En esta zona la corriente de colector \(I_C\) aumenta proporcionalmente a la corriente de base \(I_B\), de acuerdo con la ganancia de corriente del transistor.
+
+Cuando \(V_{BB}\) supera aproximadamente los \(2\,\text{V}\), la corriente de colector deja de incrementarse y se estabiliza alrededor de \(16.8\,\text{mA}\), aun cuando la corriente de base continúa aumentando. Este comportamiento indica que el transistor ha alcanzado la región de saturación, donde la corriente de colector ya no depende de \(I_B\), sino que queda limitada por la fuente de alimentación y la resistencia de colector.
+
+La corriente de colector en saturación puede calcularse aplicando la Ley de Kirchhoff a la malla del colector:
+
+\begin{equation}
+V_{CC}=I_{C(\mathrm{sat})}R_C+V_{CE(\mathrm{sat})}
+\end{equation}
+
+Despejando la corriente de saturación se obtiene:
+
+\begin{equation}
+I_{C(\mathrm{sat})}
+=\frac{V_{CC}-V_{CE(\mathrm{sat})}}{R_C}
+=\frac{10\,\mathrm{V}-0.2\,\mathrm{V}}{560\,\Omega}
+=\frac{9.8\,\mathrm{V}}{560\,\Omega}
+=0.0175\,\mathrm{A}
+\approx17.5\,\mathrm{mA}.
+\end{equation}
+
+El valor calculado resulta muy próximo al valor medido experimentalmente (\(I_C \approx 16.8\,\text{mA}\)), lo que confirma que el transistor se encuentra en saturación y que la corriente de colector está limitada por la resistencia \(R_C\) y la tensión de alimentación \(V_{CC}\).
+
+
 
 
 \section{Actividad 3: Curvas características}
@@ -177,7 +200,7 @@ Cuando Vbb supera los 2V la Ic se estabiliza alrededor de los 16,8 mA independie
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{sim3.png}
+    \includegraphics[width=1\textwidth]{3Familia_curvas_Ic(Vbb).png}
     \caption{}
 \end{figure}
 
@@ -253,7 +276,7 @@ Para valores mayores de Ib, se distinguen dos regiones: una zona de saturación 
 
 \subsection{Análisis}
 
-Aqui se ven las caracteristicas de trasnferencia Ic=f(Ib) para distintos Vce. En todos los casos 
+Aqui se ven las caracteristicas de trasnferencia Ic=f(Ib) para distintos Vce. En todos los casos la relación es lineal en la zona activa, con una pendiente que corresponde al β. Las curvas para los tre valores de Vce son practicamente identicas, confirmando que en la zona activa, la Ic en poco sensible a los cambios de Vce. 
 
 \section{Actividad 5: Especificaciones del fabricante }
 
@@ -287,10 +310,35 @@ $t_{on}$ & 35 ns & 50 ns & 35 ns & 0,7 $\mu$s & - & 40 ns \\ \bottomrule
 \end{tabular}
 \end{table}
 
-Analisis de parametros: 
-
-
+Analisis de parametros: \\
+El relevamiento de los parámetros de los seis transistores permite identificar patrones claros según el tipo de aplicación. En cuanto a la tensión de ruptura V(BR)CEO, el BU208 destaca ampliamente con 700v, devido a sus aplicaciones para alta tension a diferencia de los demas modelos. La corriente máxima de colector refleja la misma división: los dispositivos de potencia (TIP36: 25 A, BU208: 8 A) superan ampliamente a los de señal pequeña (BC548 y BC557: 100 mA, 2N2222: 800 mA). \\
+La ganancia de corriente en continua hFE muestra una relación inversa con la potencia manejada. \\
+Desde el punto de vista térmico, la resistencia térmica juntura-ambiente (thetaJA) es mucho menor en los dispositivos de potencia.
+\\
+En conmutación, los transistores de señal pequeña presentan tiempos de encendido de 35 a 50 ns, adecuados para aplicaciones de alta frecuencia, mientras que el BU208 con 0,7 us queda limitado a aplicaciones de baja frecuencia como etapas de salida en línea. 
 \section{Conclusiones}
+
+\begin{itemize}
+
+\item Se comprobó que el transistor bipolar no presenta un comportamiento completamente ideal, ya que aun en la región de corte existe una pequeña corriente de fuga (\textit{ICEO}) entre colector y emisor.
+\item La comparación entre los valores de \textit{ICEO} obtenidos mediante simulación y los especificados en el datasheet mostró diferencias esperables, atribuibles a que los modelos de simulación representan un dispositivo típico, mientras que las hojas de datos indican valores máximos garantizados bajo condiciones específicas de ensayo. Además, influyen las tolerancias de fabricación y las condiciones de temperatura.
+
+\item El relevamiento experimental permitió observar que la corriente de base ($I_B$) presenta un comportamiento exponencial respecto del voltaje $V_{BE}$, identificándose un claro ``codo de conducción'' alrededor de $0,6$--$0,7\,\mathrm{V}$, a partir del cual el transistor comienza a conducir de manera significativa.
+
+\item Una vez polarizada en directa la juntura base-emisor, el voltaje $V_{BE}$ permaneció aproximadamente constante, variando sólo algunos milivoltios frente a incrementos importantes de corriente. Este comportamiento es equivalente al de una juntura PN, por lo que resulta análogo al de un diodo de silicio.
+
+\item El análisis de las simulaciones con variaciones de temperatura mostró que un aumento de ésta provoca una disminución del voltaje $V_{BE}$ y un incremento de la corriente de base y de la corriente de colector para una misma polarización.
+
+\item Tanto en las mediciones experimentales como en las simulaciones fue posible identificar claramente las tres regiones de funcionamiento del transistor: corte, región activa y saturación, verificándose la concordancia entre el comportamiento observado y el modelo teórico.
+
+\item La curva de transferencia $I_C=f(I_B)$ presentó una relación prácticamente lineal dentro de la región activa, verificándose que la corriente de colector aumenta casi proporcionalmente con la corriente de base. Sin embargo, al alcanzarse la región de saturación, $I_C$ dejó de incrementarse a pesar de continuar aumentando $I_B$, permaneciendo prácticamente constante en un valor cercano a la corriente de saturación ($I_{C(\mathrm{sat})}$), determinada por las condiciones del circuito.
+
+\item Se verificó que la ganancia de corriente continua ($\beta$ o $h_{FE}$) no permanece constante, sino que depende del punto de operación, particularmente de la corriente de colector, la tensión $V_{CE}$, la temperatura y las características propias del dispositivo. Esto confirma que $\beta$ debe considerarse un parámetro variable en el diseño práctico.
+
+\item Se observaron diferencias entre los resultados experimentales, y las simulaciones ,que pueden atribuirse a las tolerancias de fabricación del transistor, a las incertidumbres propias de las mediciones y a las aproximaciones empleadas en los modelos de simulación.
+
+\end{itemize}
+
 
 
 
