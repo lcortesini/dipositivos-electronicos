@@ -1,0 +1,522 @@
+\documentclass[12pt,a4paper]{article}
+
+%--------------------------------
+% PAQUETES
+%--------------------------------
+\usepackage{pgfplots}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+\usepackage{tcolorbox}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{xcolor}
+
+\pgfplotsset{compat=1.18}
+
+\geometry{margin=2.5cm}
+
+\newcommand{\vsample}{\addlinespace}
+
+\setlength{\headheight}{15pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Universidad Tecnológica Nacional}
+\fancyhead[C]{\small Dispositivos Electrónicos I}
+\fancyhead[R]{\small TP N$^\circ$ 3}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \fancyhead[R]{UTN-FRC}
+    \fancyhead[C]{Dispositivos Electrónicos I}
+    \fancyhead[L]{TP N$^\circ$ 3}
+    \fancyfoot[C]{\thepage}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0pt}
+}
+
+\titleformat{\chapter}[hang]
+    {\normalfont\LARGE\bfseries}
+    {\thechapter}
+    {0.8em}
+    {}
+\titlespacing*{\chapter}{0pt}{0pt}{1em}
+
+\begin{document}
+
+%--------------------------------
+% PORTADA
+%--------------------------------
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+    \centering
+
+    {\scshape\LARGE Universidad Tecnológica Nacional \par}
+    \vspace{0.3cm}
+    {\scshape\Large Facultad Regional Córdoba \par}
+    \vspace{1.5cm}
+
+    {\scshape\Large Dispositivos Electrónicos I \par}
+    \vspace{2cm}
+
+    {\Huge\bfseries Trabajo Práctico N°3 \par}
+    \vspace{0.5cm}
+    {\LARGE Transistores Bipolares BJT \par}
+
+    \vspace{2cm}
+
+    \begin{flushleft}
+    \textbf{Integrantes:} \\
+    Alejos Antony --- 413820 --- Operador\\
+    Cortesini Luciano --- 402719 --- Coordinador\\
+    Pedregoza Juan --- 408644 --- Documentador\\
+
+    \vspace{0.5cm}
+
+    \textbf{Curso:} 3R3 \\
+    \textbf{Grupo:} 02 \\
+    \textbf{Docente:}  Leonardo Gabriel Gamboa\\
+    \textbf{Año:} 2026 \\
+    \end{flushleft}
+
+    \vfill
+
+\end{titlepage}
+\hypersetup{pageanchor=true}
+\thispagestyle{empty}
+
+\pagestyle{fancy}
+
+\vspace{1cm}
+
+\tableofcontents
+\newpage
+
+\section{Introducción}
+
+El presente informe documenta el estudio y la caracterización experimental y simulación del Transistor Bipolar de Juntura (BJT). A lo largo de este
+trabajo práctico, se analiza el comportamiento del transistor en sus diferentes regiones de operación (corte, activa y saturación), correlacionando
+los modelos teóricos con simulaciones en software (LTspice) y mediciones físicas realizadas en el laboratorio.
+
+El desarrollo del informe se estructura en cinco actividades principales:
+\begin{itemize}
+    \item \textbf{Actividad 1 (Zona de corte):} Se estudia el transistor con la base abierta para caracterizar y simular
+          la corriente de fuga residual ($I_{CEO}$) que circula a través del colector cuando el dispositivo se encuentra en zona de corte.
+    \item \textbf{Actividad 2 (Polarización de la juntura BE):} Se analiza el comportamiento exponencial de la unión
+          base-emisor ($I_B = f(V_{BE})$) y las  influencia de la temperatura, contrastando los resultados de simulación
+          con las mediciones de laboratorio en circuitos de polarización en emisor común.
+    \item \textbf{Actividad 3 (Curvas características):} Se obtienen y analizan las curvas de salida del transistor
+          ($I_C = f(V_{CE})$) para diferentes niveles de corriente de base ($I_B$), delimitando las fronteras entre las
+          zonas de corte, activa y saturación, y estimando la ganancia de corriente ($\beta$).
+    \item \textbf{Actividad 4 (Transferencia de corriente):} Se evalúa la relación de transferencia de corriente ($I_C =
+          f(I_B)$) a distintos voltajes de colector-emisor ($V_{CE}$) y se estudia la dependencia del parámetro de
+          ganancia ($\beta$) en función del punto de operación.
+    \item \textbf{Actividad 5 (Especificaciones del fabricante):} Se realiza un análisis comparativo de parámetros
+          eléctricos, térmicos y de conmutación de seis modelos comerciales de transistores BJT (tanto NPN como PNP) a
+          partir de sus hojas de datos.
+\end{itemize}
+
+El objetivo final es lograr una comprensión sólida del funcionamiento práctico del BJT, identificando sus no
+linealidades, efectos térmicos y limitaciones de diseño en circuitos electrónicos.
+\newpage
+
+\section{Actividad 1: Zona de corte}
+En esta actividad se estudia el comportamiento del transistor bipolar (BC547C) en configuración de emisor común cuando
+la base se encuentra en circuito abierto, lo que impone teóricamente una corriente de base $I_B = 0\,\mathrm{A}$. El
+propósito es verificar el estado de corte del dispositivo y analizar la existencia de la corriente de fuga
+colector-emisor con base abierta ($I_{CEO}$). Dado que el orden de magnitud de esta corriente es extremadamente pequeño
+(nanoampere) y produce caídas de tensión en el resistor de colector que están por debajo del límite
+de resolución de los multímetros digitales comunes, este análisis se lleva a cabo únicamente a través de simulación en
+LTspice.
+
+\subsection{Simulación}
+Se diseña el circuito esquemático conectando un resistor de colector $R_C = 1\,\mathrm{k}\Omega$ alimentado por una
+fuente $V_{CC} = 10\,\mathrm{V}$, y un resistor de base $R_B = 10\,\mathrm{k}\Omega$ con su terminal izquierdo en el
+aire. Mediante un análisis de punto de operación en corriente continua (\texttt{.op}), se determina la corriente
+residual de colector $I_C = I_{CEO}$ y la tensión colector-emisor $V_{CE}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{sim1.png}
+    \caption{Simulación del punto de operación en continua (.op) para el transistor en corte (base abierta).}
+\end{figure}
+
+Conclusión: 
+La simulación DC op point confirma que el transistor BC547C se encuentra en zona de corte: las corrientes de base,
+colector y emisor son prácticamente nulas, valores que corresponden únicamente a la corriente de fuga del dispositivo.
+Además, la resistencia no presenta caída de tensión y el transistor se comporta como un circuito abierto entre colector
+y emisor, confirmando que se encuentra en zona de corte.
+
+
+\section{Actividad 2: Polarización de la juntura BE}
+El propósito de esta actividad es caracterizar el comportamiento eléctrico de la unión base-emisor ($BE$) del transistor
+BJT y analizar su sensibilidad frente a variaciones de temperatura. Dado que la unión $BE$ constituye una juntura PN, su
+comportamiento es análogo al de un diodo semiconductor. Se realiza primero una caracterización por simulación y luego se
+efectúa la correspondiente verificación experimental en el laboratorio.
+
+\subsection{Simulación}
+Para modelar la curva de la juntura, se diseña en LTspice un circuito de polarización con $R_C = 560\,\Omega$ y $R_B =
+10\,\mathrm{k}\Omega$. Se define una fuente fija $V_{CC} = 10\,\mathrm{V}$ y una fuente de base variable $V_{BB}$.
+Mediante un barrido de tensión continua (DC Sweep) de $V_{BB}$ de 0 a 10 V (con pasos de 1 mV), se grafica la corriente
+de base $I_B$ en función de la tensión interna base-emisor $V_{BE}$. Posteriormente, se incorpora la directiva
+\texttt{.step temp 0 50 25} para evaluar el comportamiento térmico superponiendo los resultados a
+$0\,^{\circ}\mathrm{C}$, $25\,^{\circ}\mathrm{C}$ y $50\,^{\circ}\mathrm{C}$.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{Ib(Vbe).png}
+  \caption{Curva de transferencia de entrada $I_B = f(V_{BE})$ obtenida mediante simulación.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{2Ib(Vbe)-(temperatura).png}
+  \caption{Desplazamiento térmico de la característica de entrada $I_B = f(V_{BE})$ para $0\,^{\circ}\mathrm{C}$,
+  $25\,^{\circ}\mathrm{C}$ y $50\,^{\circ}\mathrm{C}$.}
+\end{figure}
+\subsection{Conclusiones}
+
+El barrido de la tensión de base (\(V_{BB}\)) permitió observar el comportamiento característico de la unión
+base-emisor. Para tensiones inferiores a aproximadamente \(0.7\,\mathrm{V}\), la corriente de base (\(I_B\)) es
+prácticamente nula debido a que la unión no se encuentra polarizada en directa. A partir de dicho umbral, \(I_B\)
+aumenta rápidamente con pequeños incrementos de \(V_{BB}\), siguiendo una respuesta exponencial similar a la de un diodo
+de silicio, ya que la unión base-emisor presenta el mismo comportamiento eléctrico.
+
+En el barrido de temperatura (\(0\,^{\circ}\mathrm{C}\), \(25\,^{\circ}\mathrm{C}\) y \(50\,^{\circ}\mathrm{C}\)) se
+observa un desplazamiento de la curva \(I_B\)-\(V_{BB}\). A medida que aumenta la temperatura, la tensión necesaria para
+polarizar la unión base-emisor disminuye, por lo que para un mismo valor de \(V_{BB}\) la corriente de base es mayor.
+Esto se debe a la reducción de la barrera de potencial de la unión PN con la temperatura.
+
+En consecuencia, el incremento de la temperatura modifica el punto de operación del transistor, pudiendo provocar
+variaciones en las corrientes y tensiones de polarización. Este efecto debe considerarse durante el diseño de circuitos
+de polarización para garantizar un funcionamiento estable frente a cambios térmicos.
+
+
+\subsection{Implementación en el laboratorio}
+Se implementa en protoboard el circuito de emisor común con resistores $R_B = 10\,\mathrm{k}\Omega$ y $R_C =
+560\,\Omega$ medidos previamente. La fuente $V_{CC}$ se fija en $10\,\mathrm{V}$ y la tensión $V_{BB}$ se
+incrementa de forma manual y progresiva desde 0 V. En cada punto establecido se registran las tensiones $V_{BE}$ y la
+caída de tensión en el resistor de base $V_{R_B}$. Con esta última se calcula la corriente de base $I_B = V_{R_B} / R_B$
+por ley de Ohm. Asimismo, se mide la corriente de colector $I_C$ e indirectamente se determinan las potencias disipadas
+en el resistor de colector ($P_{R_C} = I_C^2 \cdot R_C$) y en el transistor ($P_{\mathrm{bjt}} \approx V_{CE} \cdot
+I_C$).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{ciruictoact2.jpeg}
+    \caption{Montaje experimental del circuito de polarización para la juntura base-emisor.}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Resultados de corrientes y potencias - Actividad 2}
+\begin{tabular}{cccccccc}
+\toprule
+\textbf{$V_{bb}$}  & \textbf{$V_{be}$}  & \textbf{$V_{rb}$}  & \textbf{$I_b$ calculado}  & \textbf{$I_c$} &
+    \textbf{$P_{rc}$}  & \textbf{$P_{bjt}$} \\ \midrule
+467 mV & 455 mV & tiende a cero & $\approx 0\ \mu\text{A}$ & $\approx 0\text{ mA}$ & 0 mW & 0 mW \\ \vsample
+1030 mV & 955 mV & 84 mV & 8,62 $\mu\text{A}$ & 1,29 mA* & 0,92 mW & 12,0 mW \\ \vsample
+2,01 V & 0,93 V & 1,07 V & 109,7 $\mu\text{A}$ & 16,45 mA* & 149,1 mW & 15,4 mW \\ \vsample
+3,00 V & 0,97 V & 1,95 V & 200,0 $\mu\text{A}$ & 16,8 mA (lab) & 155,5 mW & 12,5 mW \\ \vsample
+4,0 V & 0,87 V & 2,90 V & 297,4 $\mu\text{A}$ & 16,8 mA (lab) & 155,5 mW & 12,7 mW \\ \vsample
+5,0 V & 0,95 V & 3,95 V & 405,1 $\mu\text{A}$ & 16,8 mA (lab) & 155,5 mW & 12,8 mW \\ \bottomrule
+\end{tabular}
+\label{tab:actividad2}
+\end{table}
+\\
+
+\subsection{Análisis}
+
+Para \(V_{BB}=467\,\text{mV}\), la tensión \(V_{BE}\) es insuficiente para polarizar la unión base-emisor en directa,
+por lo que el transistor permanece en la región de corte.
+
+Al aumentar \(V_{BB}\) hasta aproximadamente \(1.03\,\text{V}\), el transistor entra en la región activa. En esta zona
+la corriente de colector \(I_C\) aumenta proporcionalmente a la corriente de base \(I_B\), de acuerdo con la ganancia de
+corriente del transistor.
+
+Cuando \(V_{BB}\) supera aproximadamente los \(2\,\text{V}\), la corriente de colector deja de incrementarse y se
+estabiliza alrededor de \(16.8\,\text{mA}\), aun cuando la corriente de base continúa aumentando. Este comportamiento
+indica que el transistor ha alcanzado la región de saturación, donde la corriente de colector ya no depende de \(I_B\),
+sino que queda limitada por la fuente de alimentación y la resistencia de colector.
+
+La corriente de colector en saturación puede calcularse aplicando la Ley de Kirchhoff a la malla del colector:
+
+\begin{equation}
+V_{CC}=I_{C(\mathrm{sat})}R_C+V_{CE(\mathrm{sat})}
+\end{equation}
+
+Despejando la corriente de saturación se obtiene:
+
+\begin{equation}
+I_{C(\mathrm{sat})}
+=\frac{V_{CC}-V_{CE(\mathrm{sat})}}{R_C}
+=\frac{10\,\mathrm{V}-0.2\,\mathrm{V}}{560\,\Omega}
+=\frac{9.8\,\mathrm{V}}{560\,\Omega}
+=0.0175\,\mathrm{A}
+\approx17.5\,\mathrm{mA}.
+\end{equation}
+
+El valor calculado resulta muy próximo al valor medido experimentalmente (\(I_C \approx 16.8\,\text{mA}\)), lo que
+confirma que el transistor se encuentra en saturación y que la corriente de colector está limitada por la resistencia
+\(R_C\) y la tensión de alimentación \(V_{CC}\).
+
+\section{Actividad 3: Curvas características}
+El objetivo de esta actividad es obtener la familia de curvas características de salida del transistor ($I_C =
+f(V_{CE})$) para diferentes valores preestablecidos de corriente de base $I_B$. Estas curvas son fundamentales para
+identificar gráficamente las zonas de corte, activa y saturación del transistor BJT, así como para estimar la ganancia
+de corriente $\beta$ en la región de amplificación.
+
+\subsection{Simulación}
+Se implementa la topología de emisor común con $R_B = 10\,\mathrm{k}\Omega$ y $R_C = 560\,\Omega$. Se define una directiva
+de barrido bidimensional (DC Sweep): un barrido principal en la tensión de colector $V_{CC}$ de 0 a 10 V con
+incrementos de 0.1 V (para variar $V_{CE}$), y un barrido secundario en la tensión de base $V_{BB}$ de 0 a 5 V con pasos
+de 0.2 V (para obtener múltiples trazas asociadas a diferentes corrientes de base $I_B$). Se grafica la corriente de
+colector $I_C$ en función de la tensión del nodo de colector $V_C$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{3Familia_curvas_Ic(Vbb).png}
+    \caption{Familia de curvas de salida $I_C = f(V_{CE})$ obtenidas mediante simulación en LTspice.}
+\end{figure}
+
+\subsection{Implementación en el laboratorio}
+Sobre el circuito montado en protoboard, se realiza un relevamiento manual y cíclico de datos. Para cada escalón de
+corriente de base $I_B$ ($0\,\mu\mathrm{A}$, $10\,\mu\mathrm{A}$, $15\,\mu\mathrm{A}$, $20\,\mu\mathrm{A}$ y
+$25\,\mu\mathrm{A}$), controlado mediante el ajuste de la fuente $V_{BB}$ de entrada, se realiza un barrido de la fuente
+$V_{CC}$ midiendo en cada punto la corriente de colector $I_C$ y el voltaje colector-emisor $V_{CE}$. En caso de no
+disponer de suficiente resolución para medir corrientes pequeñas de base, se calcula $I_B$ de forma indirecta midiendo
+la caída en $R_B$.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Valores experimentales relevados para la gráfica de curvas de salida ($I_C = f(V_{CE})$).}
+\label{tab:curvas_salida_v2}
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Parámetro} & \multicolumn{7}{c}{\textbf{Voltaje de Colector $V_{CC}$ [V]}} \\
+\cmidrule{2-8}
+ & \textbf{0} & \textbf{0,25} & \textbf{0,5} & \textbf{1} & \textbf{2} & \textbf{5} & \textbf{10} \\ \midrule
+\textbf{$I_B = 0\ \mu\text{A}$} & & & & & & & \\
+$I_C$ [mA] & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+$V_{CE}$ [V] & 0 & 0,25 & 0,5 & 1 & 2 & 5 & 10 \\ \midrule
+\textbf{$I_B = 10\ \mu\text{A}$} & & & & & & & \\
+$I_C$ [mA] & 0,02 & 0,20 & 0,41 & 0,97 & 1,42 & 1,48 & 1,50 \\
+$V_{CE}$ [V] & 0,042 & 0,046 & 0,095 & 0,162 & 0,630 & 3,720 & 8,800 \\ \midrule
+\textbf{$I_B = 15\ \mu\text{A}$} & & & & & & & \\
+$I_C$ [mA] & 0,04 & 0,45 & 0,48 & 1,04 & 2,20 & 2,55 & 2,68 \\
+$V_{CE}$ [V] & 0,050 & 0,085 & 0,090 & 0,140 & 1,200 & 2,780 & 7,850 \\ \midrule
+\textbf{$I_B = 20\ \mu\text{A}$} & & & & & & & \\
+$I_C$ [mA] & 0 & 0,50 & 0,55 & 1,00 & 2,10 & 3,15 & 3,75 \\
+$V_{CE}$ [V] & 0 & 0,085 & 0,090 & 0,120 & 1,400 & 2,130 & 6,800 \\ \midrule
+\textbf{$I_B = 25\ \mu\text{A}$} & & & & & & & \\
+$I_C$ [mA] & 0 & 0,51 & 0,55 & 1,21 & 2,10 & 4,53 & 4,70 \\
+$V_{CE}$ [V] & 0 & 0,080 & 0,080 & 0,120 & 1,200 & 1,290 & 6,080 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Análisis}
+
+Para valores mayores de $I_B$, se distinguen dos regiones: una zona de saturación para $V_{CE}$ bajos, donde $I_C$ crece
+rápidamente con $V_{CE}$; y una zona activa donde $I_C$ se mantiene aproximadamente constante e independiente de
+$V_{CE}$, controlada exclusivamente por $I_B$. A mayor $I_B$, mayor es el valor de $I_C$ en la zona activa, con una
+relación aproximada $I_C = \beta \cdot I_B$. El espaciado entre curvas para distintos valores de $I_B$ permite estimar
+el $\beta$ del transistor: tomando $I_B = 20\,\mu\text{A}$ e $I_C = 3.75\,\text{mA}$ a $V_{CE} = 10\,\text{V}$, se
+obtiene $\beta \approx 187$, consistente con el rango declarado por el fabricante para el BC547C.
+
+\section{Actividad 4: Transferencia de corriente }
+En esta actividad se evalúa de manera cuantitativa la relación de transferencia de corriente $I_C = f(I_B)$ y el
+comportamiento de la ganancia de corriente continua $\beta$ (o $h_{FE}$) como función de las condiciones de polarización
+del circuito. El objetivo es analizar que la ganancia no es un parámetro estático, sino que presenta variaciones ante la
+magnitud de la corriente y ante la tensión de salida $V_{CE}$ (efecto de modulación de ancho de base o efecto Early).
+
+\subsection{Simulación}
+En la simulación en LTspice, se configura un barrido de continua de la fuente $V_{BB}$ (0 a 5 V con pasos de 0.01 V)
+como barrido principal, y un barrido tipo lista para la fuente de colector $V_{CC}$ (con valores de 2, 5 y 8 V) como
+barrido secundario. Se grafican sucesivamente:
+\begin{enumerate}
+    \item La corriente de colector $I_C$ en función de la corriente de base $I_B$ para observar la linealidad de la
+          transferencia.
+    \item El cociente matemático $I_C / I_B$ en función de $I_B$ para obtener la curva de ganancia instantánea $\beta$.
+    \item La ganancia $\beta$ en función de la corriente de colector $I_C$, identificando la meseta de máxima ganancia y
+          la caída en los extremos de operación.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{sim41.png}
+    \caption{Curvas de transferencia de corriente $I_C = f(I_B)$ para $V_{CE}$ de 2 V, 5 V y 8 V.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{sim42.png}
+    \caption{Ganancia de corriente instantánea $\beta$ en función de la corriente de base $I_B$.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{sim43.png}
+    \caption{Variación de la ganancia de corriente $\beta$ en función de la corriente de colector $I_C$ bajo diferentes
+    tensiones $V_{CE}$.}
+\end{figure}
+
+\subsection{Implementación en el laboratorio}
+Se utiliza el circuito en emisor común alimentado con tensión $V_{CC}$ variable. Se varía la fuente $V_{BB}$ para fijar
+corrientes de base específicas de $5\,\mu\mathrm{A}$, $7\,\mu\mathrm{A}$, $10\,\mu\mathrm{A}$ y $20\,\mu\mathrm{A}$.
+Puesto que la caída de tensión en el resistor de colector modifica la tensión $V_{CE}$ real al variar la corriente, en
+cada medición se reajusta levemente el valor de $V_{CC}$ para asegurar que $V_{CE}$ se mantenga constante en los tres
+niveles de ensayo: 2 V, 5 V y 8 V.
+
+\begin{table}[H]
+\centering
+\caption{Valores experimentales relevados para la transferencia de corriente en función de $V_{CE}$.}
+\label{tab:transferencia_corriente}
+\begin{tabular}{cccc}
+\toprule
+\textbf{$I_B$ [$\mu$A]}  & \textbf{$I_C$ [mA]} (@$V_{CE} = 2$V)  & \textbf{$I_C$ [mA]} (@$V_{CE} = 5$V) &
+    \textbf{$I_C$ [mA]} (@$V_{CE} = 8$V) \\ \midrule
+5  & 0,90 & 0,92 & 0,933 \\ \vsample
+7  & 1,46 & 1,50 & 1,520 \\ \vsample
+10 & 2,26 & 2,29 & 2,330 \\ \vsample
+20 & 5,00 & 5,15 & 5,180 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Análisis}
+
+Aquí se muestran las características de transferencia $I_C = f(I_B)$ para distintos valores de $V_{CE}$. En todos los
+casos la relación es lineal en la zona activa, con una pendiente que corresponde a la ganancia de corriente $\beta$. Las
+curvas para los tres valores de $V_{CE}$ son prácticamente idénticas, lo que confirma que en la zona activa la corriente
+de colector $I_C$ es muy poco sensible a las variaciones de $V_{CE}$.
+
+\section{Actividad 5: Especificaciones del fabricante }
+Esta actividad tiene como finalidad familiarizarse con la lectura e interpretación de las hojas de datos (datasheets)
+provistas por los fabricantes de componentes semiconductores. A partir de ellas, se identifican y comparan los límites
+máximos absolutos, las características térmicas y los tiempos de respuesta de conmutación para diversos modelos de
+transistores bipolares.
+
+\subsection{Análisis}
+Se descargan las hojas de datos oficiales y se releva la información para seis transistores bipolares comerciales: BC548
+(NPN de uso general), BC557 (PNP complementario de uso general), 2N2222 (NPN de conmutación rápida), BU208 (NPN de alta
+tensión), MPS6514 (NPN de pequeña señal) y TIP36 (PNP de potencia). Los parámetros analizados comprenden tensiones de
+ruptura, corrientes máximas de operación, ganancias de corriente en continua y alterna ($h_{FE}$ y $h_{fe}$), tensiones
+de saturación, potencia disipable máxima ($P_d$), resistencias térmicas ($\theta_{jc}$, $\theta_{ja}$) y tiempo de
+encendido ($t_{\mathrm{on}}$).
+
+\begin{table}[H]
+\centering
+\small
+\caption{Relevamiento completo de parámetros críticos extraídos de las hojas de datos.}
+\label{tab:datasheets_bjt_completa}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Parámetro}  & \textbf{BC548}  & \textbf{BC557}  & \textbf{2N2222}  & \textbf{BU208}  & \textbf{MPS6514} &
+    \textbf{TIP36} \\
+ & (NPN) & (PNP) & (NPN) & (NPN) & (NPN) & (PNP) \\ \midrule
+\multicolumn{7}{l}{\textit{Características Eléctricas Máximas y de Operación (Tj = 25 °C)}} \\ \vsample
+$V_{(BR)CEO}$ [V] & 30 V & 45 V & 30 V & 700 V & 25 V & 60 V \\ \vsample
+$I_{CEO}$ & 15 nA & 15 nA & 10 nA & 1 mA & 0,5 $\mu$A & 1 mA \\ \vsample
+$I_{CES}$ & 10 nA & 100 nA & 10 nA & 1 mA & 0,1 $\mu$A & 2 mA \\ \vsample
+$I_C$ max & 100 mA & 100 mA & 800 mA & 8 A & 150 mA & 25 A \\ \vsample
+$I_{EBO}$ & 10 nA & 10 nA & 10 nA & 10 mA & 0,1 $\mu$A & 1 mA \\ \vsample
+$h_{FE}$ & 110 / 800 & 75 / 800 & 100 / 300 & 2,25 (mín) & 150 / 300 & 15 / 50 \\ \vsample
+$h_{fe}$ & 125 / 900 & 100 / 900 & 50 / 300 & 2,50 (mín) & - & 20 (mín) \\ \vsample
+$V_{BE}$ [V] & 0,55 V & 0,65 V & 0,6 V & 1,5 V & 0,65 V & 1,1 V \\ \vsample
+$V_{CE(sat)}$ [V] & 0,25 V & 0,3 V & 0,3 V & 5 V & 0,25 V & 1,8 V \\ \vsample
+$P_d$ [W] & 500 mW & 500 mW & 500 mW & 12,5 W & 625 mW & 125 W \\ \midrule
+\multicolumn{7}{l}{\textit{Características Térmicas}} \\ \vsample
+$\theta_{jc}$ [$^{\circ}$C/W] & 85 & 80 & 83,3 & 10 & 83,3 & 1,0 \\ \vsample
+$\theta_{ja}$ [$^{\circ}$C/W] & 200 & 200 & 300 & 70 & 200 & 35,7 \\ \midrule
+\multicolumn{7}{l}{\textit{Características de Conmutación}} \\ \vsample
+$t_{on}$ & 35 ns & 50 ns & 35 ns & 0,7 $\mu$s & - & 40 ns \\ \bottomrule
+\end{tabular}
+\end{table}
+
+Análisis de parámetros: \\
+El relevamiento de los parámetros de los seis transistores permite identificar patrones claros según el tipo de
+aplicación. En cuanto a la tensión de ruptura $V_{(BR)CEO}$, el BU208 destaca ampliamente con $700\,\text{V}$, debido a
+sus aplicaciones para alta tensión a diferencia de los demás modelos. La corriente máxima de colector ($I_C$) refleja la
+misma división: los dispositivos de potencia (TIP36: $25\,\text{A}$, BU208: $8\,\text{A}$) superan ampliamente a los de
+señal pequeña (BC548 y BC557: $100\,\text{mA}$, 2N2222: $800\,\text{mA}$). \\
+La ganancia de corriente en continua $h_{FE}$ muestra una relación inversa con la potencia manejada. \\
+Desde el punto de vista térmico, la resistencia térmica juntura-ambiente ($\theta_{JA}$) es mucho menor en los
+dispositivos de potencia.
+\\
+En conmutación, los transistores de señal pequeña presentan tiempos de encendido de $35$ a $50\,\text{ns}$, adecuados
+para aplicaciones de alta frecuencia, mientras que el BU208 con $0.7\,\mu\text{s}$ queda limitado a aplicaciones de baja
+frecuencia como etapas de salida de deflexión o fuentes de alimentación conmutadas.
+\section{Conclusiones}
+
+\begin{itemize}
+
+\item Se comprobó que el transistor bipolar no presenta un comportamiento completamente ideal, ya que aun en la región
+      de corte existe una pequeña corriente de fuga (\textit{ICEO}) entre colector y emisor.
+\item La comparación entre los valores de \textit{ICEO} obtenidos mediante simulación y los especificados en el
+      datasheet mostró diferencias esperables, atribuibles a que los modelos de simulación representan un dispositivo
+      típico, mientras que las hojas de datos indican valores máximos garantizados bajo condiciones específicas de
+      ensayo. Además, influyen las tolerancias de fabricación y las condiciones de temperatura.
+
+\item El relevamiento experimental permitió observar que la corriente de base ($I_B$) presenta un comportamiento
+      exponencial respecto del voltaje $V_{BE}$, identificándose un claro ``codo de conducción'' alrededor de
+      $0,6$--$0,7\,\mathrm{V}$, a partir del cual el transistor comienza a conducir de manera significativa.
+
+\item Una vez polarizada en directa la juntura base-emisor, el voltaje $V_{BE}$ permaneció aproximadamente constante,
+      variando sólo algunos milivoltios frente a incrementos importantes de corriente. Este comportamiento es
+      equivalente al de una juntura PN, por lo que resulta análogo al de un diodo de silicio.
+
+\item El análisis de las simulaciones con variaciones de temperatura mostró que un aumento de ésta provoca una
+      disminución del voltaje $V_{BE}$ y un incremento de la corriente de base y de la corriente de colector para una
+      misma polarización.
+
+\item Tanto en las mediciones experimentales como en las simulaciones fue posible identificar claramente las tres
+      regiones de funcionamiento del transistor: corte, región activa y saturación, verificándose la concordancia entre
+      el comportamiento observado y el modelo teórico.
+
+\item La curva de transferencia $I_C=f(I_B)$ presentó una relación prácticamente lineal dentro de la región activa,
+      verificándose que la corriente de colector aumenta casi proporcionalmente con la corriente de base. Sin embargo,
+      al alcanzarse la región de saturación, $I_C$ dejó de incrementarse a pesar de continuar aumentando $I_B$,
+      permaneciendo prácticamente constante en un valor cercano a la corriente de saturación ($I_{C(\mathrm{sat})}$),
+      determinada por las condiciones del circuito.
+
+\item Se verificó que la ganancia de corriente continua ($\beta$ o $h_{FE}$) no permanece constante, sino que depende
+      del punto de operación, particularmente de la corriente de colector, la tensión $V_{CE}$, la temperatura y las
+      características propias del dispositivo. Esto confirma que $\beta$ debe considerarse un parámetro variable en el
+      diseño práctico.
+
+\item Se observaron diferencias entre los resultados experimentales, y las simulaciones ,que pueden atribuirse a las
+      tolerancias de fabricación del transistor, a las incertidumbres propias de las mediciones y a las aproximaciones
+      empleadas en los modelos de simulación.
+
+\end{itemize}
+
+
+
+
+\section{Bibliografía / Referencias}
+
+\begin{itemize}
+    \item Floyd, Thomas L.\ \textit{Principles of Electric Circuits: Conventional
+    Current Version}. Pearson Prentice Hall, 2007.
+ 
+    \item Gonz\'alez, M\'onica Liliana. \textit{LTSPICE An\'alisis de circuitos y
+    dispositivos electr\'onicos}, 1\textsuperscript{a} ed.\ La Plata, EDULP, 2018.
+    Disponible en: \url{http://sedici.unlp.edu.ar/handle/10915/69818}.
+ 
+\end{itemize}
+ 
+
+\end{document}
